@@ -147,3 +147,7 @@ The tool outputs Wayback Machine URLs in the format:
 ```
 https://web.archive.org/web/{timestamp}/{original_url}
 ```
+
+<img width="1912" height="1032" alt="image" src="https://github.com/user-attachments/assets/da3162b7-8c82-4943-be1f-0b2e3a68a634" />
+<img width="1912" height="1032" alt="image" src="https://github.com/user-attachments/assets/59082da7-000f-40ca-a0d4-ed73a40eef5c" />
+
