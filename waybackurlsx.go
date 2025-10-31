@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rix4uni/waybackurlsx/banner"
 	"github.com/spf13/pflag"
 	"golang.org/x/time/rate"
 )
@@ -27,8 +28,10 @@ type WaybackClient struct {
 type Config struct {
 	searchType     string
 	onlySensitive  bool
-	verbose        bool
 	retries        int
+	silent		   bool
+	version		   bool
+	verbose        bool
 	sensitiveRegex *regexp.Regexp
 }
 
@@ -364,9 +367,21 @@ func parseFlags() *Config {
 
 	pflag.StringVarP(&config.searchType, "type", "t", "wildcard", "Search type: wildcard (subdomains) or domain (exact domain)")
 	pflag.BoolVarP(&config.onlySensitive, "only-sensitive", "s", false, "Only show URLs matching sensitive file patterns")
-	pflag.BoolVarP(&config.verbose, "verbose", "v", false, "Show verbose output including errors and processing info")
 	pflag.IntVarP(&config.retries, "retries", "r", 1000, "Number of retries for failed requests")
+	pflag.BoolVar(&config.silent, "silent", false, "Silent mode.")
+	pflag.BoolVar(&config.version, "version", false, "Print the version of the tool and exit.")
+	pflag.BoolVarP(&config.verbose, "verbose", "v", false, "Show verbose output including errors and processing info")
 	pflag.Parse()
+
+    if config.version {
+        banner.PrintBanner()
+        banner.PrintVersion()
+        os.Exit(0)
+    }
+
+    if !config.silent {
+        banner.PrintBanner()
+    }
 
 	// Validate search type
 	if config.searchType != "wildcard" && config.searchType != "domain" {
