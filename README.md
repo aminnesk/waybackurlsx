@@ -49,8 +49,10 @@ cd waybackurlsx; go install
 Usage of waybackurlsx:
   -s, --only-sensitive   Only show URLs matching sensitive file patterns
   -r, --retries int      Number of retries for failed requests (default 1000)
+      --silent           Silent mode.
   -t, --type string      Search type: wildcard (subdomains) or domain (exact domain) (default "wildcard")
   -v, --verbose          Show verbose output including errors and processing info
+      --version          Print the version of the tool and exit.
 ```
 
 ## Usage Examples
