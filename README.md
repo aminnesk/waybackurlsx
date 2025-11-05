@@ -31,9 +31,9 @@ go install github.com/rix4uni/waybackurlsx@latest
 
 ## Download prebuilt binaries
 ```
-wget https://github.com/rix4uni/waybackurlsx/releases/download/v0.0.1/waybackurlsx-linux-amd64-0.0.1.tgz
-tar -xvzf waybackurlsx-linux-amd64-0.0.1.tgz
-rm -rf waybackurlsx-linux-amd64-0.0.1.tgz
+wget https://github.com/rix4uni/waybackurlsx/releases/download/v0.0.2/waybackurlsx-linux-amd64-0.0.2.tgz
+tar -xvzf waybackurlsx-linux-amd64-0.0.2.tgz
+rm -rf waybackurlsx-linux-amd64-0.0.2.tgz
 mv waybackurlsx ~/go/bin/waybackurlsx
 ```
 Or download [binary release](https://github.com/rix4uni/waybackurlsx/releases) for your platform.
@@ -47,6 +47,7 @@ cd waybackurlsx; go install
 ## Usage
 ```yaml
 Usage of waybackurlsx:
+      --filter string    Filter URLs directly from webarchive using regex (e.g., '.*\.(env|pem|key)$')
   -s, --only-sensitive   Only show URLs matching sensitive file patterns
   -r, --retries int      Number of retries for failed requests (default 1000)
       --silent           Silent mode.
@@ -86,6 +87,88 @@ echo "example.com" | waybackurlsx --retries 50 --verbose
 
 # Combine all flags
 cat domains.txt | waybackurlsx --type wildcard --only-sensitive --retries 1000 --verbose
+
+# Filter sensitive files only with custom regex
+echo "example.com" | waybackurlsx --filter ".*\.(env|pem|key|ppk|pkcs12|p12|pfx|cer|crt|pub|priv|gpg|asc|ovpn|kdbx|sql|db|sqlite|sqlite3|mdb|bak|backup|tar|gz|zip|7z|rar|log|git|svn|htpasswd|htaccess|config|conf|ini|yml|yaml|properties|xml|json|ldf|mdf)$"
+```
+
+## **File Path/Extension Patterns**
+
+### **Basic File Extensions**
+```regex
+.*\.(npmrc|yarnrc|pip|conf|ini|composer\.json|composer\.lock|gradle\.properties|settings\.xml|s3cfg|credentials|appsettings\.json|web\.config|env\.local|env\.production|jenkinsfile|gitlab-ci\.yml|terraform\.tfvars|\.tfstate|dockerfile|docker-compose\.yml)$
+```
+
+### **Comprehensive File Pattern**
+```regex
+.*(\.(npmrc|yarnrc|pip|conf|ini|properties|xml|json|local|production|tfvars|tfstate)|(composer\.(json|lock)|settings\.xml|s3cfg|credentials|appsettings\.json|web\.config|jenkinsfile|gitlab-ci\.yml|dockerfile|docker-compose\.yml))$
+```
+
+## **JavaScript/Code File Content Patterns**
+
+### **API Keys & Tokens**
+```regex
+\b(api[_-]?key|secret[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|client[_-]?id)\s*[=:]\s*['"`]?([a-zA-Z0-9_\-\.]{10,50})['"`]?
+```
+
+### **Generic Credentials Pattern**
+```regex
+\b(api[_-]?key|secret|token|password|passwd|pwd|credential|auth)\s*[=:]\s*['"`]?([^'"`\s]{4,100})['"`]?
+```
+
+### **Specific Service Keys**
+```regex
+\b((aws|amazon)[_-]?(access|secret)[_-]?key|aws[_-]?session[_-]?token)\s*[=:]\s*['"`]?([A-Z0-9]{20,40})['"`]?
+\b(sk_live_[0-9a-zA-Z]{24}|pk_live_[0-9a-zA-Z]{24})\b
+\b(AIza[0-9A-Za-z\-_]{35})\b
+\b(gh[ops]_[0-9a-zA-Z]{36})\b
+```
+
+### **Database Connections**
+```regex
+\b(mongodb|postgres|mysql|redis)://[^'"`\s]*(:[^'"`\s]*)?@[^'"`\s]*
+\b(database|db)[_-]?(url|connection|string)\s*[=:]\s*['"`]?([^'"`\s]{10,200})['"`]?
+```
+
+### **Cloud Storage URLs with Tokens**
+```regex
+https?://[^'"`\s]*\.(s3|blob|storage)\.[^'"`\s]*\?(AWSAccessKeyId|Signature|token)=[^'"`\s&]*
+```
+
+## **Configuration File Patterns**
+
+### **Environment Variables**
+```regex
+\b([A-Z_][A-Z0-9_]*)\s*=\s*['"`]?([^'"`\n]{4,200})['"`]?
+```
+
+### **Hardcoded Credentials in Code**
+```regex
+\b(username|user|login|email)\s*[=:]\s*['"`]?([^'"`\s]{3,50})['"`]?\s*[,;\n]
+\b(password|pass|passwd)\s*[=:]\s*['"`]?([^'"`\s]{3,50})['"`]?
+```
+
+## **Combined Search Patterns**
+
+### **Multi-Purpose Sensitive Data Detector**
+```regex
+(?i)\b(api[_-]?key|secret|token|password|credential|auth|connection[_-]?string|private[_-]?key|access[_-]?key|session[_-]?token)\s*[=:]\s*['"`]?([^'"`\s]{8,100})['"`]?
+```
+
+### **File and Content Combined Pattern**
+```regex
+(.*\.(npmrc|yarnrc|pip|conf|ini|env|local|properties|json|xml)$)|(\b(api[_-]?key|secret|token|password)\s*[=:]\s*['"`]?[^'"`\s]{8,}['"`]?)
+```
+
+## **Usage Examples**
+
+### **For Wayback Machine CDX Search**
+```bash
+# Search for sensitive file types
+filter=original:.*\.(npmrc|yarnrc|pip|conf|ini|composer\.json|composer\.lock|gradle\.properties|settings\.xml|s3cfg|credentials)$
+
+# Search for JavaScript files that might contain secrets
+filter=original:.*\.js$&collapse=urlkey
 ```
 
 ## Command Line Flags

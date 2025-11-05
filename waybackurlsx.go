@@ -29,10 +29,11 @@ type Config struct {
 	searchType     string
 	onlySensitive  bool
 	retries        int
-	silent		   bool
-	version		   bool
+	silent         bool
+	version        bool
 	verbose        bool
 	sensitiveRegex *regexp.Regexp
+	filter         string
 }
 
 func NewWaybackClient() *WaybackClient {
@@ -166,17 +167,27 @@ func compileSensitiveRegex() *regexp.Regexp {
 	return compiled
 }
 
-func buildCDXURL(domain string, searchType string) string {
+func buildCDXURL(domain string, searchType string, filter string) string {
 	encodedDomain := url.QueryEscape(domain)
 
+	var baseURL string
 	switch searchType {
 	case "domain":
-		return fmt.Sprintf("http://web.archive.org/cdx/search/cdx?url=%s/*&output=text&fl=timestamp,original&collapse=urlkey", encodedDomain)
+		baseURL = fmt.Sprintf("http://web.archive.org/cdx/search/cdx?url=%s/*&output=text&fl=timestamp,original&collapse=urlkey", encodedDomain)
 	case "wildcard":
 		fallthrough
 	default:
-		return fmt.Sprintf("http://web.archive.org/cdx/search/cdx?url=*.%s/*&output=text&fl=timestamp,original&collapse=urlkey", encodedDomain)
+		baseURL = fmt.Sprintf("http://web.archive.org/cdx/search/cdx?url=*.%s/*&output=text&fl=timestamp,original&collapse=urlkey", encodedDomain)
 	}
+
+	// Append filter parameter if provided
+	if filter != "" {
+		filterParam := fmt.Sprintf("original:%s", filter)
+		encodedFilter := url.QueryEscape(filterParam)
+		baseURL = fmt.Sprintf("%s&filter=%s", baseURL, encodedFilter)
+	}
+
+	return baseURL
 }
 
 func processDomainWithRetries(domain string, client *WaybackClient, config *Config) {
@@ -203,8 +214,8 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 		}
 	}
 
-	cdxURL := buildCDXURL(domain, config.searchType)
-	
+	cdxURL := buildCDXURL(domain, config.searchType, config.filter)
+
 	if config.verbose {
 		fmt.Fprintf(os.Stderr, "[VERBOSE] CDX API URL: %s\n", cdxURL)
 	}
@@ -232,7 +243,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 			if config.verbose {
 				fmt.Fprintf(os.Stderr, "[ERROR] Request failed for %s (attempt %d/%d): %v\n", domain, attempt, config.retries, err)
 			}
-			
+
 			if attempt < config.retries {
 				// Exponential backoff: wait longer between retries
 				backoffTime := time.Duration(attempt*attempt) * time.Second
@@ -254,7 +265,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 		client.AdjustRate(resp.Header)
 
 		if config.verbose {
-			fmt.Fprintf(os.Stderr, "[VERBOSE] Response status: %d, Content-Length: %s\n", 
+			fmt.Fprintf(os.Stderr, "[VERBOSE] Response status: %d, Content-Length: %s\n",
 				resp.StatusCode, resp.Header.Get("Content-Length"))
 		}
 
@@ -262,7 +273,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 			if config.verbose {
 				fmt.Fprintf(os.Stderr, "[ERROR] Non-200 status code for %s: %d\n", domain, resp.StatusCode)
 			}
-			
+
 			if attempt < config.retries && (resp.StatusCode >= 500 || resp.StatusCode == 429) {
 				// Retry on server errors and rate limits
 				backoffTime := time.Duration(attempt*attempt) * time.Second
@@ -284,7 +295,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 			if config.verbose {
 				fmt.Fprintf(os.Stderr, "[ERROR] Failed to read response body for %s: %v\n", domain, err)
 			}
-			
+
 			if attempt < config.retries {
 				backoffTime := time.Duration(attempt*attempt) * time.Second
 				if config.verbose {
@@ -306,7 +317,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 	}
 
 	lines := strings.Split(string(body), "\n")
-	
+
 	if config.verbose {
 		fmt.Fprintf(os.Stderr, "[VERBOSE] Found %d lines in response\n", len(lines))
 	}
@@ -354,7 +365,7 @@ func processDomainWithRetries(domain string, client *WaybackClient, config *Conf
 
 	if config.verbose {
 		if config.onlySensitive {
-			fmt.Fprintf(os.Stderr, "[VERBOSE] Domain %s: %d sensitive URLs found out of %d total URLs\n", 
+			fmt.Fprintf(os.Stderr, "[VERBOSE] Domain %s: %d sensitive URLs found out of %d total URLs\n",
 				domain, sensitiveCount, totalCount)
 		} else {
 			fmt.Fprintf(os.Stderr, "[VERBOSE] Domain %s: %d URLs processed\n", domain, totalCount)
@@ -371,17 +382,18 @@ func parseFlags() *Config {
 	pflag.BoolVar(&config.silent, "silent", false, "Silent mode.")
 	pflag.BoolVar(&config.version, "version", false, "Print the version of the tool and exit.")
 	pflag.BoolVarP(&config.verbose, "verbose", "v", false, "Show verbose output including errors and processing info")
+	pflag.StringVar(&config.filter, "filter", "", "Filter URLs directly from webarchive using regex (e.g., '.*\\.(env|pem|key)$')")
 	pflag.Parse()
 
-    if config.version {
-        banner.PrintBanner()
-        banner.PrintVersion()
-        os.Exit(0)
-    }
+	if config.version {
+		banner.PrintBanner()
+		banner.PrintVersion()
+		os.Exit(0)
+	}
 
-    if !config.silent {
-        banner.PrintBanner()
-    }
+	if !config.silent {
+		banner.PrintBanner()
+	}
 
 	// Validate search type
 	if config.searchType != "wildcard" && config.searchType != "domain" {
@@ -412,7 +424,7 @@ func parseFlags() *Config {
 
 func main() {
 	config := parseFlags()
-	
+
 	if config.verbose {
 		fmt.Fprintf(os.Stderr, "[VERBOSE] Starting WaybackURLsX with config: type=%s, only-sensitive=%t, retries=%d\n",
 			config.searchType, config.onlySensitive, config.retries)

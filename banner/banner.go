@@ -5,7 +5,7 @@ import (
 )
 
 // prints the version message
-const version = "v0.0.1"
+const version = "v0.0.2"
 
 func PrintVersion() {
 	fmt.Printf("Current waybackurlsx version %s\n", version)
@@ -21,5 +21,5 @@ func PrintBanner() {
 |__/|__/ \__,_/ \__, //_.___/ \__,_/ \___//_/|_| \__,_//_/   /_//____//_/|_|  
                /____/
 `
-    fmt.Printf("%s\n%75s\n\n", banner, "Current waybackurlsx version "+version)
+	fmt.Printf("%s\n%75s\n\n", banner, "Current waybackurlsx version "+version)
 }
